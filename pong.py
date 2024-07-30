@@ -26,7 +26,7 @@ class GameObject(pygame.sprite.Sprite):
 
 class Paddle(GameObject):
     def __init__(self, x, y):
-        super().__init__(x, y, 10, 100, WHITE)
+        super().__init__(x, y, 10, 100, BLACK)
         self.speed = 5
 
     def move_up(self):
@@ -41,7 +41,7 @@ class Paddle(GameObject):
 
 class Ball(GameObject):
     def __init__(self):
-        super().__init__(WIDTH // 2, HEIGHT // 2, 10, 10, WHITE)
+        super().__init__(WIDTH // 2, HEIGHT // 2, 10, 10, BLACK)
         self.speed_x = 5 * random.choice((1, -1))
         self.speed_y = 5 * random.choice((1, -1))
 
@@ -94,6 +94,9 @@ def game_loop():
             player_paddle.move_up()
         if keys[pygame.K_DOWN]:
             player_paddle.move_down()
+        if keys[pygame.K_ESCAPE]:
+            end_screen()
+            break
 
         # Computer AI
         if computer_paddle.rect.centery < ball.rect.centery:
@@ -111,8 +114,8 @@ def game_loop():
         if ball.rect.left <= 0 :
             computer_score += 1
             ball.reset()
-            text = font.render(f"Computer Scored", True, WHITE)
-            screen.blit(text, (WIDTH//2, HEIGHT//2))
+            text = font.render(f"Computer Scored", True, BLACK)
+            screen.blit(text,(WIDTH // 2 - 100, HEIGHT // 2 - 50))
             pygame.display.flip()
             clock.tick(60)
 
@@ -120,22 +123,24 @@ def game_loop():
         elif ball.rect.right >= WIDTH :
             player_score += 1
             ball.reset()
-            text = font.render(f"Player Scored", True, WHITE)
-            screen.blit(text, (WIDTH//2, HEIGHT//2))
+            text = font.render(f"Player Scored", True, BLACK)
+            screen.blit(text, (WIDTH // 2 - 100, HEIGHT // 2 - 50))
             pygame.display.flip()
             clock.tick(60)
 
             time.sleep(1)  # Delay after goal
 
         # Drawing
-        screen.fill(BLACK)
+        screen.fill(WHITE)
+        pygame.draw.circle(screen,BLACK,(WIDTH//2,HEIGHT//2),WIDTH//4,2)
+        pygame.draw.line(screen,BLACK,(WIDTH//2,0),(WIDTH//2,HEIGHT))
         all_sprites.draw(screen)
 
         # Display scores
-        player_text = font.render(f"Player: {player_score}", True, WHITE)
-        computer_text = font.render(f"Computer: {computer_score}", True, WHITE)
-        screen.blit(player_text, (10, 10))
-        screen.blit(computer_text, (WIDTH - 150, 10))
+        player_text = font.render(f"{player_score}", True, BLACK)
+        computer_text = font.render(f"{computer_score}", True, BLACK)
+        screen.blit(player_text, (WIDTH//2 - 50, HEIGHT//2))
+        screen.blit(computer_text, (WIDTH//2 + 50, HEIGHT//2))
 
         pygame.display.flip()
         clock.tick(60)
@@ -164,9 +169,10 @@ def end_screen():
                     return
 
         screen.fill(BLACK)
+        winner_text = font.render("",True,WHITE)
         if player_score > computer_score:
             winner_text = font.render("You Win!", True, WHITE)
-        else:
+        elif computer_score > player_score:
             winner_text = font.render("Computer Wins!", True, WHITE)
         restart_text = font.render("Press 'R' to restart or 'Q' to quit", True, WHITE)
         screen.blit(winner_text, (WIDTH // 2 - 50, HEIGHT // 2 - 50))
